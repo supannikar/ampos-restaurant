@@ -5,6 +5,7 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 public class RestaurantMenuRequest {
@@ -13,7 +14,7 @@ public class RestaurantMenuRequest {
     private String description;
     private String image;
     private Double price;
-    private Map<String, String> additional;
+    private Map<String, List<String>> additional;
 
     public String getName() {
         return name;
@@ -51,11 +52,11 @@ public class RestaurantMenuRequest {
         return this;
     }
 
-    public Map<String, String> getAdditional() {
+    public Map<String, List<String>> getAdditional() {
         return additional;
     }
 
-    public RestaurantMenuRequest setAdditional(Map<String, String> additional) {
+    public RestaurantMenuRequest setAdditional(Map<String, List<String>> additional) {
         this.additional = additional;
         return this;
     }

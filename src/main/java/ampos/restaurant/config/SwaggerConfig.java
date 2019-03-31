@@ -31,10 +31,16 @@ public class SwaggerConfig {
 			return new Docket(DocumentationType.SWAGGER_2)
 					.apiInfo(apiInfo())
 					.select()
-					.apis(RequestHandlerSelectors.any())
+					.apis(RequestHandlerSelectors.any()).paths(studentsPaths())
 					.paths(PathSelectors.any())
 					.build().
 				securitySchemes(Arrays.asList(basicAuth()));
+	}
+
+	private Predicate<String> studentsPaths() {
+		return Predicates.or(
+				regex("/api/menu.*"),
+				regex("/api/order.*"));
 	}
 
 	private ApiInfo apiInfo() {

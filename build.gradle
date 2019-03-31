@@ -16,7 +16,7 @@ buildscript {
 }
 
 jar {
-    baseName = 'swagger-example'
+    baseName = 'ampos-restaurant'
     version =  '0.0.1-SNAPSHOT'
 }
 
@@ -34,33 +34,10 @@ dependencies {
 	compile("io.springfox:springfox-swagger-ui:2.6.1")
 	compile("org.springframework.boot:spring-boot-starter-data-mongodb")
 	compile group: 'org.mongodb.morphia', name: 'morphia', version: '1.3.2'
+    compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.10.1'
 
 	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
 	
     testCompile("org.springframework.boot:spring-boot-starter-test")
 	testCompile("org.springframework.security:spring-security-test")
 }
-
-//swagger {
-//	apiSource {
-//		springmvc = true
-//		locations = 'ampos.restaurant'
-//		basePath = '/api'
-//		info {
-//			title = 'Restaurant API'
-//			description = 'The Restaurant API.'
-//			version = '1.0'
-//		}
-//		securityDefinition {
-//			name = 'Basic Authentication'
-//			type = 'basic'
-//		}
-//		swaggerDirectory = "${project.rootDir}/generated/swagger-json"
-//		swaggerApiReader = 'com.github.kongchen.swagger.docgen.reader.SpringMvcApiReader'
-//		modelConverters = [ 'io.swagger.validator.BeanValidator' ]
-//	}
-//}
-//
-//test {
-//	systemProperty 'SWAGGER_TEST_OUTPUT_DIR', "${project.rootDir}/generated/swagger-test"
-//}

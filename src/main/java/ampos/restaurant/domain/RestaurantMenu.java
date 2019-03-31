@@ -7,6 +7,7 @@ import org.mongodb.morphia.annotations.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 @Entity(value = "RestaurantMenu", noClassnameStored = true)
@@ -17,7 +18,7 @@ public class RestaurantMenu {
     private String description;
     private String image;
     private Double price;
-    private Map<String, String> additional;
+    private Map<String, List<String>> additional;
     private Instant modifiedAt;
     private String modifiedBy;
     private Instant createdAt;
@@ -68,11 +69,11 @@ public class RestaurantMenu {
         return this;
     }
 
-    public Map<String, String> getAdditional() {
+    public Map<String, List<String>> getAdditional() {
         return additional;
     }
 
-    public RestaurantMenu setAdditional(Map<String, String> additional) {
+    public RestaurantMenu setAdditional(Map<String, List<String>> additional) {
         this.additional = additional;
         return this;
     }

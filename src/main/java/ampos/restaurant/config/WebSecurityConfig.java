@@ -6,11 +6,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-/**
- * Applicable for non development environment.
- * 
- * @author LBalev
- */
 @Configuration
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
