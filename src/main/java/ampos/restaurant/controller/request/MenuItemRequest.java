@@ -1,8 +1,11 @@
 package ampos.restaurant.controller.request;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class MenuItemRequest {
     private String id;
     private Integer quantity;
+    private String operation;
 
     public String getId() {
         return id;
@@ -19,6 +22,15 @@ public class MenuItemRequest {
 
     public MenuItemRequest setQuantity(final Integer quantity) {
         this.quantity = quantity;
+        return this;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public MenuItemRequest setOperation(String operation) {
+        this.operation = operation;
         return this;
     }
 }

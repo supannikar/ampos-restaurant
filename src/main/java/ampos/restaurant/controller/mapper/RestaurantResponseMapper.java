@@ -12,7 +12,7 @@ public class RestaurantResponseMapper {
 
     public RestaurantMenuResponse toResponse(RestaurantMenu restaurantMenu) {
         return new RestaurantMenuResponse()
-                .setId(restaurantMenu.getId().toHexString())
+                .setId(restaurantMenu.getId())
                 .setName(restaurantMenu.getName())
                 .setDescription(restaurantMenu.getDescription())
                 .setImage(restaurantMenu.getImage())

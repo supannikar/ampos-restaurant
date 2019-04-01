@@ -10,6 +10,9 @@ import ampos.restaurant.exceptions.NotFoundException;
 import ampos.restaurant.repository.RestaurantMenuRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -28,6 +31,9 @@ public class RestaurantMenuServiceImpl implements RestaurantMenuService {
 	@Autowired
 	private RestaurantResponseMapper restaurantResponseMapper;
 
+	@Autowired
+	private MongoOperations mongoOperations;
+
 	@Override
 	public RestaurantMenu create(RestaurantMenuRequest restaurantMenu) {
 		RestaurantMenu menu = new RestaurantMenu().setName(restaurantMenu.getName())
@@ -42,9 +48,10 @@ public class RestaurantMenuServiceImpl implements RestaurantMenuService {
 
 	@Override
 	public RestaurantMenu udpateRestaurantMenu(RestaurantMenuRequest restaurantMenu,
-                                               ObjectId id) {
+                                               String id) {
 		
-		RestaurantMenu existingMenu = restaurantMenuRepository.findOne(id);
+		RestaurantMenu existingMenu =
+				mongoOperations.findOne(new Query(Criteria.where("_id").is(id)), RestaurantMenu.class);
 
 		if (isNull(existingMenu)) {
 			throw new NotFoundException("Menu with Id " + id + " not found!");
@@ -77,9 +84,10 @@ public class RestaurantMenuServiceImpl implements RestaurantMenuService {
 	}
 
 	@Override
-	public RestaurantMenu findbyId(ObjectId id) {
+	public RestaurantMenu findbyId(String id) {
 
-		RestaurantMenu foundMenu = restaurantMenuRepository.findOne(id);
+		RestaurantMenu foundMenu =
+				mongoOperations.findOne(new Query(Criteria.where("_id").is(id)), RestaurantMenu.class);
 		if (isNull(foundMenu)) {
 			throw new NotFoundException("Menu with Id " + id + " not found!");
 		}
@@ -88,19 +96,10 @@ public class RestaurantMenuServiceImpl implements RestaurantMenuService {
 
 	@Override
 	public ListResponseData listAll(int page,
-										int pageSize,
-										String name) {
+									int pageSize,
+									String name) {
 		List<RestaurantMenu> restaurantMenus = restaurantMenuRepository.findAll();
-//				.stream()
-//				.filter(restaurantMenu -> restaurantMenu.getDescription().toLowerCase().contains(query)
-//						|| restaurantMenu.getName().toLowerCase().contains(query))
-//				.collect(Collectors.toList());
-//		if (nonNull(name)) {
-//			restaurantMenus = restaurantMenus.stream()
-//					.map(restaurantMenu -> restaurantMenu.getName().toLowerCase(Locale.ENGLISH).contains(name)).findAny()
-//					.collect(Collectors.toList());
-//		}
-//		page = page - 1;
+
 		ListResponseData listResponseData = new ListResponseData();
 		int numberOfPage = (int) Math.ceil((double) restaurantMenus.size() / (double)pageSize);
 		if (page < numberOfPage) {
@@ -130,12 +129,13 @@ public class RestaurantMenuServiceImpl implements RestaurantMenuService {
 	}
 
     @Override
-    public void removeOne(ObjectId id) {
-	    RestaurantMenu restaurantMenu = restaurantMenuRepository.findOne(id);
-	    if (isNull(restaurantMenu)) {
+    public void removeOne(String id) {
+		RestaurantMenu existingMenu =
+				mongoOperations.findOne(new Query(Criteria.where("_id").is(id)), RestaurantMenu.class);
+	    if (isNull(existingMenu)) {
             throw new NotFoundException("Menu with Id " + id + " not found!");
         }
-	    restaurantMenuRepository.delete(id);
+		restaurantMenuRepository.delete(existingMenu);
     }
 
 }

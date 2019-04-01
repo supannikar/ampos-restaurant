@@ -1,6 +1,5 @@
 package ampos.restaurant.domain;
 
-import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
@@ -10,17 +9,17 @@ import java.util.List;
 @Entity(value = "BillOrder", noClassnameStored = true)
 public class BillOrder {
     @Id
-    private ObjectId id;
+    private String id;
     private Integer billNo;
     private List<MenuOrderItem> menuOrderItems;
     private Double totalPrice;
     private Instant orderTime;
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public BillOrder setId(ObjectId id) {
+    public BillOrder setId(String id) {
         this.id = id;
         return this;
     }

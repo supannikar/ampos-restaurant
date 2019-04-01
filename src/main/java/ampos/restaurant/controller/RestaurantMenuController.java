@@ -38,7 +38,7 @@ public class RestaurantMenuController {
 			@ApiResponse(code = 200, message = "OK") })
 	@RequestMapping(method = RequestMethod.GET, value = "/api/menu/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public RestaurantMenuResponse getMenu(@ApiParam(name="id", value = "The ID of the menu.", required = true)
-                                              @PathVariable ObjectId id) {
+                                              @PathVariable String id) {
 
 		return restaurantResponseMapper.toResponse(restaurantMenuService.findbyId(id));
 
@@ -73,7 +73,7 @@ public class RestaurantMenuController {
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<RestaurantMenuResponse> updateMenu(
-			@ApiParam(name="id", value = "The ID of the menu.", required = true) @PathVariable ObjectId id,
+			@ApiParam(name="id", value = "The ID of the menu.", required = true) @PathVariable String id,
 			@ApiParam(name="restaurantMenu", value = "The restaurant menu.", required = true)
 			@RequestBody RestaurantMenuRequest restaurantMenu) {
 
@@ -90,19 +90,19 @@ public class RestaurantMenuController {
     @RequestMapping(method = RequestMethod.DELETE, value = "/api/menu/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity removeMenu(
             @ApiParam(name="id", value = "The ID of the menu.", required = true)
-            @PathVariable ObjectId id) {
+            @PathVariable String id) {
 	    restaurantMenuService.removeOne(id);
 	    return ResponseEntity.status(HttpStatus.OK).build();
 
     }
 
-	private static URI restaurantMenuURI(ObjectId studentId) {
-		return toUri("/api/menu/{id}", studentId);
+	private static URI restaurantMenuURI(String menuId) {
+		return toUri("/api/menu/{id}", menuId);
 	}
 
-	private static URI toUri(String path, ObjectId studentId) {
+	private static URI toUri(String path, String menuId) {
 		return ServletUriComponentsBuilder.fromCurrentRequest().path(path)
-				.buildAndExpand(studentId).toUri();
+				.buildAndExpand(menuId).toUri();
 	}
 
 

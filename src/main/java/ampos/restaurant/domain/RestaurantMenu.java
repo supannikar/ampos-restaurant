@@ -13,7 +13,7 @@ import java.util.Map;
 @Entity(value = "RestaurantMenu", noClassnameStored = true)
 public class RestaurantMenu {
     @Id
-    private ObjectId id;
+    private String id;
     private String name;
     private String description;
     private String image;
@@ -24,11 +24,11 @@ public class RestaurantMenu {
     private Instant createdAt;
     private String createdBy;
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public RestaurantMenu setId(ObjectId id) {
+    public RestaurantMenu setId(String id) {
         this.id = id;
         return this;
     }

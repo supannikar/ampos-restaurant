@@ -10,9 +10,9 @@ import java.util.List;
 public interface RestaurantMenuService {
 
 	public RestaurantMenu create(RestaurantMenuRequest restaurantMenu);
-	public RestaurantMenu udpateRestaurantMenu(RestaurantMenuRequest restaurantMenu, ObjectId id);
-	public RestaurantMenu findbyId(ObjectId id);
+	public RestaurantMenu udpateRestaurantMenu(RestaurantMenuRequest restaurantMenu, String id);
+	public RestaurantMenu findbyId(String id);
 	public ListResponseData listAll(int page, int pageSize, String name);
-	public void removeOne(ObjectId id);
+	public void removeOne(String id);
 	
 }
