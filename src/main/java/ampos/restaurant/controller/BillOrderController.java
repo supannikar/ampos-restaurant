@@ -3,19 +3,27 @@ package ampos.restaurant.controller;
 import ampos.restaurant.controller.mapper.RestaurantResponseMapper;
 import ampos.restaurant.controller.request.BillOrderRequest;
 import ampos.restaurant.controller.response.BillOrderResponse;
-import ampos.restaurant.controller.response.RestaurantMenuResponse;
 import ampos.restaurant.domain.BillOrder;
 import ampos.restaurant.service.BillOrderService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.text.ParseException;
+import java.util.List;
 
 @Api(tags = "Bill Order")
 @RestController
@@ -52,7 +60,7 @@ public class BillOrderController {
 			value = "/api/order",
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<BillOrderResponse> createNewOrder(
+	public ResponseEntity<List<BillOrderResponse>> createNewOrder(
 	        @ApiParam(name="billOrder", value = "Bill order", required = true)
             @RequestBody BillOrderRequest billOrderRequest) {
 
@@ -76,19 +84,19 @@ public class BillOrderController {
 //		return ResponseEntity.created(restaurantMenuURI(updatedRestaurantMenu.getId()))
 //				.body(restaurantResponseMapper.toResponse(updatedRestaurantMenu));
 //	}
-//
-//    @ApiOperation("Remove a menu by the given ID.")
-//    @ApiResponses(value = {
-//            @ApiResponse(code = 404, message = "Menu not found."),
-//            @ApiResponse(code = 200, message = "OK") })
-//    @RequestMapping(method = RequestMethod.DELETE, value = "/api/menu/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity removeMenu(
-//            @ApiParam(name="id", value = "The ID of the menu.", required = true)
-//            @PathVariable ObjectId id) {
-//	    restaurantMenuService.removeOne(id);
-//	    return ResponseEntity.status(HttpStatus.OK).build();
-//
-//    }
+
+    @ApiOperation("Remove a menu by the bill order.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Order not found."),
+            @ApiResponse(code = 200, message = "OK") })
+    @RequestMapping(method = RequestMethod.GET, value = "/api/order/{billNo}", produces =
+			MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity listMenu(@ApiParam(name="billNo", value = "The bill number of the order.", required = true)
+            @PathVariable Integer billNo) {
+	    billOrderService.findbyBillNo(billNo);
+	    return ResponseEntity.status(HttpStatus.OK).build();
+
+    }
 
 	private static URI restaurantMenuURI(ObjectId studentId) {
 		return toUri("/api/menu/{id}", studentId);

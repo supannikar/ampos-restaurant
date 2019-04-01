@@ -5,9 +5,8 @@ import ampos.restaurant.controller.response.RestaurantMenuResponse;
 import ampos.restaurant.domain.BillOrder;
 import ampos.restaurant.domain.RestaurantMenu;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RestaurantResponseMapper {
 
@@ -22,12 +21,15 @@ public class RestaurantResponseMapper {
 
     }
 
-    public BillOrderResponse toResponseBillOrder(BillOrder billOrder) {
-        return new BillOrderResponse().setBillNo(billOrder.getBillNo())
-                .setMenuItem(billOrder.getMenuItem().toHexString())
-                .setOrderTime(billOrder.getOrderTime())
-                .setTotalPrice(billOrder.getTotalPrice())
-                .setQuantity(billOrder.getQuantity());
+    public List<BillOrderResponse> toResponseBillOrder(BillOrder billOrder) {
+        return billOrder.getMenuOrderItems().stream()
+                .map(order -> new BillOrderResponse()
+                        .setBillNo(billOrder.getBillNo())
+                        .setMenuItem(order.getId())
+                        .setQuantity(order.getQuantity())
+                        .setTotalPrice(order.getPriceWithQuantity())
+                        .setOrderTime(billOrder.getOrderTime()))
+                .collect(Collectors.toList());
 
     }
 }

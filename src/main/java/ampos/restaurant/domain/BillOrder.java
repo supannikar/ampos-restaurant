@@ -1,22 +1,18 @@
 package ampos.restaurant.domain;
 
-import io.swagger.models.auth.In;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Entity(value = "BillOrder", noClassnameStored = true)
 public class BillOrder {
     @Id
     private ObjectId id;
     private Integer billNo;
-    private ObjectId menuItem;
-    private Integer quantity;
+    private List<MenuOrderItem> menuOrderItems;
     private Double totalPrice;
     private Instant orderTime;
 
@@ -38,21 +34,12 @@ public class BillOrder {
         return this;
     }
 
-    public ObjectId getMenuItem() {
-        return menuItem;
+    public List<MenuOrderItem> getMenuOrderItems() {
+        return menuOrderItems;
     }
 
-    public BillOrder setMenuItem(ObjectId menuItem) {
-        this.menuItem = menuItem;
-        return this;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public BillOrder setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public BillOrder setMenuOrderItems(final List<MenuOrderItem> menuOrderItems) {
+        this.menuOrderItems = menuOrderItems;
         return this;
     }
 

@@ -1,16 +1,11 @@
 package ampos.restaurant.controller.request;
 
-import org.bson.types.ObjectId;
-
-import java.beans.IntrospectionException;
 import java.util.List;
-import java.util.Map;
 
 public class BillOrderRequest {
 
     private Integer billNo;
-    private String menuItem;
-    private Integer quantity;
+    private List<MenuItemRequest> menuItem;
 
     public Integer getBillNo() {
         return billNo;
@@ -21,21 +16,12 @@ public class BillOrderRequest {
         return this;
     }
 
-    public String getMenuItem() {
+    public List<MenuItemRequest> getMenuItem() {
         return menuItem;
     }
 
-    public BillOrderRequest setMenuItem(String menuItem) {
+    public BillOrderRequest setMenuItem(List<MenuItemRequest> menuItem) {
         this.menuItem = menuItem;
-        return this;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public BillOrderRequest setQuantity(Integer quantity) {
-        this.quantity = quantity;
         return this;
     }
 }

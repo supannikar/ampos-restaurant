@@ -1,10 +1,6 @@
 package ampos.restaurant.controller.response;
 
-import io.swagger.models.auth.In;
-
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
 
 public class BillOrderResponse {
 
