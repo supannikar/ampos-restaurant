@@ -3,32 +3,24 @@ package ampos.restaurant.service;
 import ampos.restaurant.controller.mapper.RestaurantResponseMapper;
 import ampos.restaurant.controller.request.BillOrderRequest;
 import ampos.restaurant.controller.request.MenuItemRequest;
-import ampos.restaurant.controller.response.BillOrderResponse;
 import ampos.restaurant.domain.BillOrder;
 import ampos.restaurant.domain.MenuOrderItem;
 import ampos.restaurant.domain.RestaurantMenu;
+import ampos.restaurant.exceptions.NotFoundException;
 import ampos.restaurant.repository.BillOrderRepository;
-import com.mongodb.QueryBuilder;
-import org.bson.types.ObjectId;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
-import org.mongodb.morphia.dao.BasicDAO;
-import org.mongodb.morphia.query.QueryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
 
@@ -50,29 +42,25 @@ public class BillOrderServiceImpl implements BillOrderService {
 	@Override
 	public BillOrder create(BillOrderRequest billOrderRequest) {
 
-		List<MenuOrderItem> menuOrderItems = billOrderRequest.getMenuItem().stream()
-				.map(item -> {
-					RestaurantMenu restaurantMenu =
-					restaurantMenuService.findbyId(item.getId());
-					Double priceWithQuantity =
-							Math.ceil((double) item.getQuantity() * restaurantMenu.getPrice());
+		RestaurantMenu restaurantMenu = restaurantMenuService.findbyId(billOrderRequest.getId());
 
-					return new MenuOrderItem()
-							.setId(restaurantMenu.getId())
-							.setQuantity(item.getQuantity())
-							.setPriceWithQuantity(priceWithQuantity);
-				}).collect(Collectors.toList());
+		if (nonNull(restaurantMenu)) {
+			Double totalPrice =
+					Math.ceil((double) billOrderRequest.getQuantity() * restaurantMenu.getPrice());
+			MenuOrderItem menuOrderItem = new MenuOrderItem()
+					.setId(restaurantMenu.getId())
+					.setQuantity(billOrderRequest.getQuantity())
+					.setPriceWithQuantity(totalPrice);
 
-		Double totalPrice = menuOrderItems.stream()
-				.map(MenuOrderItem::getPriceWithQuantity)
-				.reduce(0.0, Double::sum);
-
-		BillOrder billOrder = new BillOrder()
-				.setBillNo(getNextSequence("BillOrder"))
-				.setOrderTime(Instant.now())
-				.setMenuOrderItems(menuOrderItems)
-				.setTotalPrice(totalPrice);
-		return billOrderRepository.save(billOrder);
+			BillOrder billOrder = new BillOrder()
+					.setBillNo(getNextSequence("BillOrder"))
+					.setOrderTime(Instant.now())
+					.setMenuOrderItems(Collections.singletonList(menuOrderItem))
+					.setTotalPrice(totalPrice);
+			return billOrderRepository.save(billOrder);
+		} else {
+			throw new NotFoundException("Not found this menu id: " + billOrderRequest.getId());
+		}
 	}
 
 	@Override
@@ -80,33 +68,50 @@ public class BillOrderServiceImpl implements BillOrderService {
 									 Integer billNo) {
 
 		BillOrder existBillOrder = findOrderByBillNo(billNo);
+		RestaurantMenu restaurantMenu =
+				restaurantMenuService.findbyId(menuItemRequest.getId());
+
+		if (isNull(restaurantMenu)) {
+			throw new NotFoundException("Not found menu id: " + menuItemRequest.getId());
+		}
+
 		if (nonNull(existBillOrder)) {
+
 			if (!existBillOrder.getMenuOrderItems().isEmpty()) {
-				existBillOrder.getMenuOrderItems().forEach(item -> {
-					RestaurantMenu restaurantMenu =
-							restaurantMenuService.findbyId(item.getId());
 
-					if (item.getId().equals(menuItemRequest.getId())) {
-						if ("UPDATE".equalsIgnoreCase(menuItemRequest.getOperation())) {
-							item.setQuantity(menuItemRequest.getQuantity());
+				Optional<MenuOrderItem> orderItem = existBillOrder.getMenuOrderItems().stream()
+						.filter(item -> item.getId().equalsIgnoreCase(menuItemRequest.getId()))
+						.findAny();
 
-							Double priceWithQuantity =
-									Math.ceil((double) item.getQuantity() * restaurantMenu.getPrice());
-							item.setPriceWithQuantity(priceWithQuantity);
-						} else if ("REMOVE".equalsIgnoreCase(menuItemRequest.getOperation())) {
-							existBillOrder.getMenuOrderItems().remove(item);
-						}
-
-					} else {
-						MenuOrderItem newItem = new MenuOrderItem().setId(menuItemRequest.getId())
-								.setQuantity(menuItemRequest.getQuantity());
+				if (orderItem.isPresent()) {
+					if (menuItemRequest.getAction().equals(MenuItemRequest.LineItemAction.UPDATE)) {
+						orderItem.get().setQuantity(menuItemRequest.getQuantity());
 						Double priceWithQuantity =
-								Math.ceil((double) item.getQuantity() * restaurantMenu.getPrice());
-						newItem.setPriceWithQuantity(priceWithQuantity);
-
-						existBillOrder.getMenuOrderItems().add(newItem);
+								Math.ceil((double) menuItemRequest.getQuantity() * restaurantMenu.getPrice());
+						orderItem.get().setPriceWithQuantity(priceWithQuantity);
 					}
-				});
+
+					if (menuItemRequest.getAction().equals(MenuItemRequest.LineItemAction.ADD)) {
+						Integer newQuantity = menuItemRequest.getQuantity() + orderItem.get().getQuantity();
+						orderItem.get().setQuantity(newQuantity);
+
+						Double priceWithQuantity = Math.ceil((double) newQuantity * restaurantMenu.getPrice());
+						orderItem.get().setPriceWithQuantity(priceWithQuantity);
+					}
+
+					if (menuItemRequest.getAction().equals(MenuItemRequest.LineItemAction.DELETE)) {
+						existBillOrder.getMenuOrderItems().remove(orderItem.get());
+					}
+
+				} else {
+					MenuOrderItem newItem = new MenuOrderItem().setId(menuItemRequest.getId())
+							.setQuantity(menuItemRequest.getQuantity());
+					Double priceWithQuantity =
+							Math.ceil((double) menuItemRequest.getQuantity() * restaurantMenu.getPrice());
+					newItem.setPriceWithQuantity(priceWithQuantity);
+					existBillOrder.getMenuOrderItems().add(newItem);
+				}
+
 			} else {
 				existBillOrder.setMenuOrderItems(Collections.singletonList(new MenuOrderItem()
 						.setId(menuItemRequest.getId())
@@ -116,8 +121,8 @@ public class BillOrderServiceImpl implements BillOrderService {
 		}
 
 		Double totalPrice = existBillOrder.getMenuOrderItems().stream()
-		.map(MenuOrderItem::getPriceWithQuantity)
-		.reduce(0.0, Double::sum);
+				.map(MenuOrderItem::getPriceWithQuantity)
+				.reduce(0.0, Double::sum);
 
 		existBillOrder
 				.setOrderTime(Instant.now())
@@ -129,11 +134,11 @@ public class BillOrderServiceImpl implements BillOrderService {
 	public BillOrder findOrderByBillNo(final Integer billNo) {
 		Query query = new Query();
 		if (nonNull(billNo)) {
-			query.addCriteria(Criteria.where("billNo").is(billNo));
+			query.addCriteria(Criteria.where("billNo").is(billNo))
+					.addCriteria(Criteria.where("menuOrderItems._id").exists(true));
 		}
 
-		BillOrder billOrder = mongoOperations.findOne(query, BillOrder.class);
-		return billOrder;
+		return mongoOperations.findOne(query, BillOrder.class);
 	}
 
 	public BillOrder findOrderByBillNoAndItemId(final Integer billNo, final String menuItemId) {

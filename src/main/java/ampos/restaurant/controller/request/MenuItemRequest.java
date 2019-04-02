@@ -2,10 +2,22 @@ package ampos.restaurant.controller.request;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.DefaultValue;
+
 public class MenuItemRequest {
     private String id;
+
+    @NotNull
+    @ApiModelProperty(required = true, value = "Quantity of product in cart item (default: 1)")
+    @DefaultValue("1")
     private Integer quantity;
-    private String operation;
+
+    @NotNull
+    @ApiModelProperty(required = true,
+            value = "Option for updating or adding quantity (default: UPDATE)")
+    @DefaultValue("UPDATE")
+    private LineItemAction action;
 
     public String getId() {
         return id;
@@ -25,12 +37,18 @@ public class MenuItemRequest {
         return this;
     }
 
-    public String getOperation() {
-        return operation;
+    public LineItemAction getAction() {
+        return action;
     }
 
-    public MenuItemRequest setOperation(String operation) {
-        this.operation = operation;
+    public MenuItemRequest setAction(final LineItemAction action) {
+        this.action = action;
         return this;
+    }
+
+    public enum LineItemAction {
+        UPDATE,
+        ADD,
+        DELETE
     }
 }

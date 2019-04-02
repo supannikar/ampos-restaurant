@@ -22,6 +22,7 @@ public class RestaurantResponseMapper {
     }
 
     public List<BillOrderResponse> toResponseBillOrder(BillOrder billOrder) {
+
         return billOrder.getMenuOrderItems().stream()
                 .map(order -> new BillOrderResponse()
                         .setBillNo(billOrder.getBillNo())
@@ -30,6 +31,7 @@ public class RestaurantResponseMapper {
                         .setTotalPrice(order.getPriceWithQuantity())
                         .setOrderTime(billOrder.getOrderTime()))
                 .collect(Collectors.toList());
+
 
     }
 }

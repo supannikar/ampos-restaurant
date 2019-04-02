@@ -1,17 +1,25 @@
 package ampos.restaurant.controller.request;
 
-import java.util.List;
-
 public class BillOrderRequest {
 
-    private List<MenuItemRequest> menuItem;
+    private String id;
+    private Integer quantity;
 
-    public List<MenuItemRequest> getMenuItem() {
-        return menuItem;
+    public String getId() {
+        return id;
     }
 
-    public BillOrderRequest setMenuItem(List<MenuItemRequest> menuItem) {
-        this.menuItem = menuItem;
+    public BillOrderRequest setId(final String id) {
+        this.id = id;
+        return this;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public BillOrderRequest setQuantity(final Integer quantity) {
+        this.quantity = quantity;
         return this;
     }
 }
